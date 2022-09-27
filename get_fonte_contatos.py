@@ -74,7 +74,7 @@ def CreateLogs(msg, file):
 
 if __name__ == '__main__':
     # Cria a conexão com o banco AWS
-    engine, con = create_connection('CRM.db', SECRET_DB_PASSOWRD)
+    engine, con = create_connection('CRM.db', SECRET_DB_PASSWORD)
 
     # Cria a lista de ids a serem requisitados na API
     dif = GetIdDiference()
@@ -87,18 +87,27 @@ if __name__ == '__main__':
 
     # Envio dos dados ao banco AWS
     try:
-        # Tratamento de dados para inserção no banco AWS
+        # Converte o arquivo Json em um pandas dataframe
         df_teste = contatos.convert_to_df()
+
+        # Renomeia as colunas corretamente para inserir no banco AWS
         df_teste = df_teste[['FonteContato','Ranking', 'Score','IdUsuarioInclusao', 'IdInterno','TipoPessoa', 'CnpjCpf']]
         df_teste.columns = [str(nome_coluna).lower() for nome_coluna in df_teste.columns]
+
+        # Trata os valores nulos e strings onde deveriam ser floats
         df_teste = df_teste.fillna(0)
         df_teste['cnpjcpf'] = df_teste['cnpjcpf'].apply(lambda x: 0 if (x == '' or type(x)  == str()) else x)
-        #df_teste.to_sql('fonte', if_exists = 'append', con=engine, index=False)
-        
 
-        
+        # Envio dos dados ao banco AWS
+        df_teste.to_sql('fonte', if_exists = 'append', con=engine, index=False)
+
+        # Cria os logs no arquivo fonte_logs.txt
+        msg = f'Operacao concluida com {len(df_teste)} linhas inseridas no banco'
+        CreateLogs(msg, file = 'fonte_logs')
+
     except Exception as e:
-        print('Operação não pode ser concluida devido a:', e)
+        msg = f'Operacao não pode ser concluida devido a: {e}'
+        CreateLogs(msg, file = 'fonte_logs')
 
     
 
