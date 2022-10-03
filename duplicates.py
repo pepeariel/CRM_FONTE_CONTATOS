@@ -3,12 +3,9 @@ from db_conection import create_connection
 import pandas as pd
 import requests
 
-SECRET_DB_PASSOWRD = "3xpdOcTa0HlIjG"
+#engine, con = create_connection('CRM.db', SECRET_DB_PASSOWRD)
 
-
-engine, con = create_connection('CRM.db', SECRET_DB_PASSOWRD)
-
-df_fonte = pd.read_sql('SELECT * FROM fonte', con)
+#df_fonte = pd.read_sql('SELECT * FROM fonte', con)
 
 # Requisição dos ids duplicados
 #ids = df_fonte['idinterno']
